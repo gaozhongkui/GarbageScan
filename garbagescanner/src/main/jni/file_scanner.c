@@ -74,7 +74,8 @@ void setThreadAttachCallback(Scanner *scanner, void (*attach)(Scanner *scanner),
 
 static void *threadScan(Scanner *scanner);
 
-static void checkFileExt(Scanner *scanner, const char *dir, const char *fileName, int isNoMediaPath);
+static void
+checkFileExt(Scanner *scanner, const char *dir, const char *fileName, int isNoMediaPath);
 
 static void doFindFile(Scanner *scanner, char *dir, char *fileName);
 
@@ -82,7 +83,7 @@ static PathNode *takePathNode(Scanner *scanner);
 
 static void pushPathNode(Scanner *scanner, PathNode *pathNode);
 
-static int isNoMediaPath(Scanner *scanner, char * path);
+static int isNoMediaPath(Scanner *scanner, char *path);
 
 static int filterNoMedia(Scanner *scanner, char *ext);
 
@@ -187,7 +188,8 @@ int isScanning(Scanner *scanner) {
     return 0;
 }
 
-void setScanParams(Scanner *scanner, int extCount, char **exts, int filteredNoMediaExtCount, char **filteredNoMediaExts, int thdCount, int scanDepth, int detail) {
+void setScanParams(Scanner *scanner, int extCount, char **exts, int filteredNoMediaExtCount,
+                   char **filteredNoMediaExts, int thdCount, int scanDepth, int detail) {
     if (!scanner) return;
     if (isScanning(scanner)) return;
 
@@ -261,7 +263,8 @@ void setScanPath(Scanner *scanner, int count, char **path) {
 
 void setCallbacks(Scanner *scanner,
                   void (*start)(Scanner *scanner),
-                  void (*find)(Scanner *scanner, pthread_t threadId, const char *file, off_t size, time_t modify),
+                  void (*find)(Scanner *scanner, pthread_t threadId, const char *file, off_t size,
+                               time_t modify),
                   void (*finish)(Scanner *scanner, int isCancel)) {
     if (!scanner) return;
     scanner->onStart = start;
@@ -344,7 +347,10 @@ static void *threadScan(Scanner *scanner) {
                     if (scanner->detachJVMThreadCallback) scanner->detachJVMThreadCallback(scanner);
                     scanner->exitThreadCount++;
                     releaseScanner(scanner);
-                    pthread_mutex_unlock(scanner->mutex);
+                    pthread_mutex_t *mutex = scanner->mutex;
+                    if (mutex != NULL) {
+                        pthread_mutex_unlock(mutex);
+                    }
                     pthread_detach(pthread_self());
                     return NULL;
                 }
@@ -352,7 +358,10 @@ static void *threadScan(Scanner *scanner) {
             if (scanner->detachJVMThreadCallback) scanner->detachJVMThreadCallback(scanner);
             scanner->exitThreadCount++;
             pthread_cond_signal(scanner->cond);
-            pthread_mutex_unlock(scanner->mutex);
+            pthread_mutex_t *mutex = scanner->mutex;
+            if (mutex != NULL) {
+                pthread_mutex_unlock(mutex);
+            }
             pthread_detach(pthread_self());
             break;
         }
@@ -427,7 +436,7 @@ static void *threadScan(Scanner *scanner) {
  * @param path
  * @return
  */
-static int isNoMediaPath(Scanner *scanner, char * path) {
+static int isNoMediaPath(Scanner *scanner, char *path) {
     if (scanner->filteredNoMediaExtCount < 1) {
         return 0;
     }
@@ -489,7 +498,8 @@ static PathNode *takePathNode(Scanner *scanner) {
  * @param fileName  :文件名,目录名为NULL时文件名为全路径
  * @param isNoMediaPath  :是否是 nomedia path
  */
-static void checkFileExt(Scanner *scanner, const char *dir, const char *fileName, int isNoMediaPath) {
+static void
+checkFileExt(Scanner *scanner, const char *dir, const char *fileName, int isNoMediaPath) {
     if (fileName == NULL) return;
 
     if (!scanner->extCount) {
