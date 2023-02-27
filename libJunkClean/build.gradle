@@ -1,0 +1,21 @@
+apply plugin: 'com.android.library'
+
+android {
+    defaultConfig {
+        externalNativeBuild {
+            cmake {
+                cppFlags ""
+                abiFilters 'armeabi', 'mips', 'x86_64', 'mips64', 'x86', 'arm64-v8a', 'armeabi-v7a'
+            }
+        }
+    }
+    externalNativeBuild {
+        cmake {
+            path "CMakeLists.txt"
+        }
+    }
+}
+
+dependencies {
+//    api project(':libDeviceCommon')
+}

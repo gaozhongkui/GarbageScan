@@ -1,0 +1,3 @@
+/Users/gaozhongkui/Desktop/project/GarbageScan/libJunkClean/.cxx/Debug/h693z1ko/x86/CMakeFiles/jdc.dir
+/Users/gaozhongkui/Desktop/project/GarbageScan/libJunkClean/.cxx/Debug/h693z1ko/x86/CMakeFiles/edit_cache.dir
+/Users/gaozhongkui/Desktop/project/GarbageScan/libJunkClean/.cxx/Debug/h693z1ko/x86/CMakeFiles/rebuild_cache.dir
