@@ -1,3 +1,3 @@
 package com.gaozhongkui.garbagescanner.data.model
 
-data class BaseScanInfo(val fileSize: Long, val itemType: ScanItemType, var isChecked: Boolean = false)
+abstract class BaseScanInfo(val fileSize: Long = 0, val itemType: ScanItemType = ScanItemType.OTHER_GARBAGE, var isChecked: Boolean = false)
