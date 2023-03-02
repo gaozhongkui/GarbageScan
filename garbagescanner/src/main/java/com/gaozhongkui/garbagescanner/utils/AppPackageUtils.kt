@@ -5,7 +5,6 @@ import android.app.usage.StorageStatsManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.IPackageStatsObserver
-import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.content.pm.PackageStats
 import android.os.Build
@@ -19,11 +18,11 @@ object AppPackageUtils {
     /**
      * 获取应用的缓冲大小
      */
-    fun getAppCacheSize(cxt: Context, packageInfo: PackageInfo, sizeCallback: (Long) -> Unit) {
+    fun getAppCacheSize(cxt: Context, packageName: String, sizeCallback: (Long) -> Unit) {
         val packageManager: PackageManager = cxt.packageManager
         //判断如果大于等于8.0时，则进行特殊处理
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val applicationInfo = packageManager.getApplicationInfo(packageInfo.packageName, 0)
+            val applicationInfo = packageManager.getApplicationInfo(packageName, 0)
             val storageStatsManager = cxt.getSystemService(Context.STORAGE_STATS_SERVICE) as StorageStatsManager
             try {
                 var cacheBytes = storageStatsManager.queryStatsForUid(
@@ -47,7 +46,7 @@ object AppPackageUtils {
             val method = packageManager.javaClass.getMethod(
                 "getPackageSizeInfo", String::class.java, IPackageStatsObserver::class.java
             )
-            method.invoke(packageManager, packageInfo.packageName, object : IPackageStatsObserver.Stub() {
+            method.invoke(packageManager, packageName, object : IPackageStatsObserver.Stub() {
                 override fun onGetStatsCompleted(packageStats: PackageStats, succeeded: Boolean) {
                     if (succeeded && packageStats.cacheSize > 0) {
                         sizeCallback.invoke(packageStats.cacheSize)

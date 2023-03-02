@@ -1,115 +1,119 @@
 package com.gaozhongkui.garbagescanner.scanner;
 
+/**
+ * 文件扫描
+ */
 public class FileScanner {
 
-  static {
-    System.loadLibrary("scanner");
-  }
-
-  public interface ScanCallback {
-    void onStart();
-
-    void onFind(long threadId, String path, long size, long modify);
-
-    void onFinish(boolean isCancel);
-  }
-
-  public static class FindItem {
-
-    public FindItem(String path, long size, long modifyTime) {
-      this.path = path;
-      this.size = size;
-      this.modifyTime = modifyTime;
+    static {
+        System.loadLibrary("scanner");
     }
 
-    public String path;
-    public long size;
-    public long modifyTime;
 
-  }
+    public interface ScanCallback {
+        void onStart();
 
-  private long mHandle;
+        void onFind(long threadId, String path, long size, long modify);
 
-  public FileScanner() {
-    mHandle = nativeCreate();
-  }
-
-  @Override
-  protected void finalize() throws Throwable {
-    super.finalize();
-
-    release();
-  }
-
-  public synchronized void release() {
-    if (mHandle != 0) {
-      nativeRelease(mHandle);
-      mHandle = 0;
+        void onFinish(boolean isCancel);
     }
-  }
 
-  /**
-   * 初始化扫描器
-   *
-   * @param suf           :要扫描的文件后缀(不区分大小写,不带'.'), null 或 空数组表示查找所有文件
-   * @param filteredNoMediaSuf: nomedia 目录过滤掉的文件类型, null 或 空数组表示不过滤,
-   *                          nomedia 目录是当前目录或任何父级目录中有 .nomedia 文件的目录
-   * @param thdCount      :扫描线程数
-   * @param depth         :扫描目录深度(-1时扫描所有目录)
-   * @param getFileDetail :是否返回文件大小,修改日期(默认只返回文件路径)
-   */
-  public void setScanParams(String[] suf, String[] filteredNoMediaSuf, int thdCount, int depth, boolean getFileDetail) {
-    if (thdCount < 1) {
-      throw new RuntimeException("参数错误");
+    public static class FindItem {
+
+        public FindItem(String path, long size, long modifyTime) {
+            this.path = path;
+            this.size = size;
+            this.modifyTime = modifyTime;
+        }
+
+        public String path;
+        public long size;
+        public long modifyTime;
+
     }
-    nativeSetScanParams(mHandle, suf, filteredNoMediaSuf, thdCount, depth, getFileDetail);
-  }
 
-  /**
-   * 是否扫描隐藏目录, 默认 true
-   *
-   * @param scanHidden
-   */
-  public void setScanHiddenEnable(boolean scanHidden) {
-    nativeSetScanHiddenEnable(mHandle, scanHidden);
-  }
+    private long mHandle;
 
-  /**
-   * 设置扫描路径
-   * @param path 要扫描的路径数组
-   */
-  public void setScanPath(String[] path) {
-    if (path != null && path.length > 0) {
-      nativeSetScanPath(mHandle, path);
+    public FileScanner() {
+        mHandle = nativeCreate();
     }
-  }
 
-  /**
-   * 开始扫描
-   * @param callback
-   */
-  public void startScan(ScanCallback callback) {
-    if (callback != null) {
-      nativeStartScan(mHandle, callback);
+    @Override
+    protected void finalize() throws Throwable {
+        super.finalize();
+
+        release();
     }
-  }
 
-  public void stopScan() {
-    nativeStopScan(mHandle);
-  }
+    public synchronized void release() {
+        if (mHandle != 0) {
+            nativeRelease(mHandle);
+            mHandle = 0;
+        }
+    }
 
-  private native long nativeCreate();
+    /**
+     * 初始化扫描器
+     *
+     * @param suf                 :要扫描的文件后缀(不区分大小写,不带'.'), null 或 空数组表示查找所有文件
+     * @param filteredNoMediaSuf: nomedia 目录过滤掉的文件类型, null 或 空数组表示不过滤,
+     *                            nomedia 目录是当前目录或任何父级目录中有 .nomedia 文件的目录
+     * @param thdCount            :扫描线程数
+     * @param depth               :扫描目录深度(-1时扫描所有目录)
+     * @param getFileDetail       :是否返回文件大小,修改日期(默认只返回文件路径)
+     */
+    public void setScanParams(String[] suf, String[] filteredNoMediaSuf, int thdCount, int depth, boolean getFileDetail) {
+        if (thdCount < 1) {
+            throw new RuntimeException("参数错误");
+        }
+        nativeSetScanParams(mHandle, suf, filteredNoMediaSuf, thdCount, depth, getFileDetail);
+    }
 
-  private native void nativeRelease(long handle);
+    /**
+     * 是否扫描隐藏目录, 默认 true
+     *
+     * @param scanHidden
+     */
+    public void setScanHiddenEnable(boolean scanHidden) {
+        nativeSetScanHiddenEnable(mHandle, scanHidden);
+    }
 
-  private native void nativeSetScanParams(long handle, String[] suf, String[] filteredNoMediaSuf, int thdCount, int depth, boolean getFileDetail);
+    /**
+     * 设置扫描路径
+     *
+     * @param path 要扫描的路径数组
+     */
+    public void setScanPath(String[] path) {
+        if (path != null && path.length > 0) {
+            nativeSetScanPath(mHandle, path);
+        }
+    }
 
-  private native void nativeSetScanHiddenEnable(long handle, boolean enable);
+    /**
+     * 开始扫描
+     */
+    public void startScan(ScanCallback callback) {
+        if (callback != null) {
+            nativeStartScan(mHandle, callback);
+        }
+    }
 
-  private native void nativeSetScanPath(long handle, String path[]);
+    public void stopScan() {
+        nativeStopScan(mHandle);
+    }
 
-  private native int nativeStartScan(long handle, ScanCallback callback);
+    private native long nativeCreate();
 
-  private native void nativeStopScan(long handle);
+    private native void nativeRelease(long handle);
+
+    private native void nativeSetScanParams(long handle, String[] suf, String[] filteredNoMediaSuf, int thdCount, int depth, boolean getFileDetail);
+
+    private native void nativeSetScanHiddenEnable(long handle, boolean enable);
+
+    private native void nativeSetScanPath(long handle, String path[]);
+
+    private native int nativeStartScan(long handle, ScanCallback callback);
+
+    private native void nativeStopScan(long handle);
 
 }
