@@ -61,9 +61,6 @@ object AppPackageUtils {
      * 判断是否有OPSTR_GET_USAGE_STATS权限
      */
     fun hasPermissionToReadNetworkStats(cxt: Context): Boolean {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            return true
-        }
         val appOps = cxt.getSystemService(Context.APP_OPS_SERVICE) as AppOpsManager
         val mode = appOps.checkOpNoThrow(
             AppOpsManager.OPSTR_GET_USAGE_STATS, Process.myUid(), cxt.packageName

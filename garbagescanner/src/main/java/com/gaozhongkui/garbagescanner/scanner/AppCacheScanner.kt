@@ -2,6 +2,7 @@ package com.gaozhongkui.garbagescanner.scanner
 
 import android.content.Context
 import android.content.pm.PackageManager
+import com.gaozhongkui.garbagescanner.callback.IScannerCallback
 import com.gaozhongkui.garbagescanner.utils.AppPackageUtils
 import com.gaozhongkui.garbagescanner.utils.CommonUtil
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -13,11 +14,10 @@ import java.util.concurrent.CountDownLatch
 /**
  * 应用缓冲扫描
  */
-class AppCacheScanner {
+class AppCacheScanner :BaseScanner{
     private var isStopScanner = false
-
     @OptIn(DelicateCoroutinesApi::class)
-    fun startScan(cxt: Context) {
+    override fun startScan(cxt: Context, callback: IScannerCallback) {
         GlobalScope.launch(Dispatchers.IO) {
             val packageManager = cxt.packageManager
             val installedApplications = packageManager.getInstalledApplications(PackageManager.GET_META_DATA)
@@ -43,7 +43,8 @@ class AppCacheScanner {
         }
     }
 
-    fun stopScan() {
+
+    override fun stopScan() {
         isStopScanner = true
     }
 

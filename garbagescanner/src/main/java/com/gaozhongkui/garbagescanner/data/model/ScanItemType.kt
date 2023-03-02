@@ -16,9 +16,6 @@ enum class ScanItemType {
     //安装包
     INSTALL_PACKAGE,
 
-    //内存垃圾
-    MEM_GARBAGE,
-
     //其他垃圾
     OTHER_GARBAGE
 }

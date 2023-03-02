@@ -1,4 +1,6 @@
-package com.gaozhongkui.garbagescanner.scanner;
+package com.gaozhongkui.garbagescanner.callback;
+
+import com.gaozhongkui.garbagescanner.scanner.FileScanner;
 
 import java.util.HashMap;
 import java.util.LinkedList;
