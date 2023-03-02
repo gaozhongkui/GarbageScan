@@ -67,7 +67,7 @@ class ApkFileScanner : BaseScanner {
                 }
 
                 override fun onFinish(isCancel: Boolean) {
-                    callback.onFinish()
+                    callback.onFinish(existApkFileList)
                 }
 
             })
