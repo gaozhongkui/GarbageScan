@@ -11,5 +11,5 @@ interface IScannerCallback {
 
     fun onFind(info: BaseScanInfo)
 
-    fun onFinish(isCancel: Boolean)
+    fun onFinish()
 }

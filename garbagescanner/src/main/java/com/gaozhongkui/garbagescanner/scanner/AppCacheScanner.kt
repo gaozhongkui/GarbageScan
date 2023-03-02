@@ -14,10 +14,12 @@ import java.util.concurrent.CountDownLatch
 /**
  * 应用缓冲扫描
  */
-class AppCacheScanner :BaseScanner{
+class AppCacheScanner : BaseScanner {
     private var isStopScanner = false
+
     @OptIn(DelicateCoroutinesApi::class)
     override fun startScan(cxt: Context, callback: IScannerCallback) {
+        isStopScanner = false
         GlobalScope.launch(Dispatchers.IO) {
             val packageManager = cxt.packageManager
             val installedApplications = packageManager.getInstalledApplications(PackageManager.GET_META_DATA)
