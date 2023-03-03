@@ -20,7 +20,7 @@ class GarbageManagerDB(cxt: Context) : SQLiteOpenHelper(cxt, DATABASE_NAME, null
     fun getAdGarbagePathInfoList(): List<GarbagePathInfo> {
         val pathList: MutableList<GarbagePathInfo> = mutableListOf()
         readableDatabase.query(
-            "file_path_info_clean", null, null, null, null, null, null
+            "file_path_info_clean", null, "garbagetype=?", arrayOf("ad"), null, null, null
         ).use { c ->
             if (c != null && c.moveToFirst()) {
                 do {
@@ -37,6 +37,7 @@ class GarbageManagerDB(cxt: Context) : SQLiteOpenHelper(cxt, DATABASE_NAME, null
                     val filePathIndex = c.getColumnIndex("filePath")
                     val filePath = c.getString(filePathIndex)
                     val garbagePathInfo = GarbagePathInfo(id, filePath, packageName, garbageName)
+                    garbagePathInfo.itemType
                     garbagePathInfo.name = appName
                     pathList.add(garbagePathInfo)
                 } while (c.moveToNext())

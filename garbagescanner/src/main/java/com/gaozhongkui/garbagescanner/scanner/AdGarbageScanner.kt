@@ -4,7 +4,7 @@ import android.content.Context
 import com.gaozhongkui.garbagescanner.callback.IScannerCallback
 import com.gaozhongkui.garbagescanner.data.db.GarbageManagerDB
 import com.gaozhongkui.garbagescanner.data.model.GarbagePathInfo
-import com.gaozhongkui.garbagescanner.data.model.UnloadResidueInfo
+import com.gaozhongkui.garbagescanner.data.model.AdGarbageInfo
 import com.gaozhongkui.garbagescanner.utils.CommonUtil
 import kotlinx.coroutines.*
 import java.io.File
@@ -15,7 +15,7 @@ import java.io.File
 class AdGarbageScanner : BaseScanner {
     private var isStopScanner = false
     private var fileScanner: FileScanner? = null
-    private val unloadResidueList = mutableListOf<UnloadResidueInfo>()
+    private val unloadResidueList = mutableListOf<AdGarbageInfo>()
 
     @OptIn(DelicateCoroutinesApi::class)
     override fun startScan(cxt: Context, callback: IScannerCallback) {
@@ -51,7 +51,7 @@ class AdGarbageScanner : BaseScanner {
                 override fun onFind(threadId: Long, path: String?, size: Long, modify: Long) {
                     path?.let {
                         val file = File(it)
-                        val info = UnloadResidueInfo("", it)
+                        val info = AdGarbageInfo("", it)
                         info.fileSize = size
                         info.name = file.name
                         unloadResidueList.add(info)
