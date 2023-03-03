@@ -37,7 +37,7 @@ class GarbageManagerDB(cxt: Context) : SQLiteOpenHelper(cxt, DATABASE_NAME, null
                     val filePathIndex = c.getColumnIndex("filePath")
                     val filePath = c.getString(filePathIndex)
                     val garbagePathInfo = GarbagePathInfo(id, filePath, packageName, garbageName)
-//                    , garbageName, packageName
+                    garbagePathInfo.name = appName
                     pathList.add(garbagePathInfo)
                 } while (c.moveToNext())
             }

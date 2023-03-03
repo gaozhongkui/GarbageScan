@@ -6,10 +6,7 @@ import android.provider.MediaStore
 import android.text.TextUtils
 import com.gaozhongkui.garbagescanner.callback.IScannerCallback
 import com.gaozhongkui.garbagescanner.data.model.ApkFileInfo
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import java.io.File
 
 class ApkFileScanner : BaseScanner {
@@ -22,6 +19,9 @@ class ApkFileScanner : BaseScanner {
         callback.onStart()
         GlobalScope.launch(Dispatchers.IO) {
             val infoList = queryContentResolverExternal(cxt, callback)
+            if (isStopScanner || !isActive) {
+                return@launch
+            }
             scanApkFile(infoList, callback)
         }
     }
