@@ -1,6 +1,6 @@
 package com.gaozhongkui.garbagescanner.callback
 
-import com.gaozhongkui.garbagescanner.data.model.BaseScanInfo
+import com.gaozhongkui.garbagescanner.base.BaseScanInfo
 
 /**
  * 扫描回调类

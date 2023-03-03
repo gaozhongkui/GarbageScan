@@ -1,9 +1,9 @@
-package com.gaozhongkui.garbagescanner.data.db
+package com.gaozhongkui.garbagescanner.database
 
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
-import com.gaozhongkui.garbagescanner.data.model.GarbagePathInfo
+import com.gaozhongkui.garbagescanner.model.GarbagePathInfo
 import com.gaozhongkui.garbagescanner.utils.FileUtils
 
 class GarbageManagerDB(cxt: Context) : SQLiteOpenHelper(cxt, DATABASE_NAME, null, DATABASE_VERSION) {

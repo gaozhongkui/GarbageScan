@@ -1,4 +1,6 @@
-package com.gaozhongkui.garbagescanner.data.model
+package com.gaozhongkui.garbagescanner.model
+
+import com.gaozhongkui.garbagescanner.base.BaseScanInfo
 
 /**
  * 卸载的垃圾对象

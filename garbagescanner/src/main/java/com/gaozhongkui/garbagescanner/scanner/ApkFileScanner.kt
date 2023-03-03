@@ -4,8 +4,9 @@ import android.content.Context
 import android.os.Environment
 import android.provider.MediaStore
 import android.text.TextUtils
+import com.gaozhongkui.garbagescanner.base.BaseScanner
 import com.gaozhongkui.garbagescanner.callback.IScannerCallback
-import com.gaozhongkui.garbagescanner.data.model.ApkFileInfo
+import com.gaozhongkui.garbagescanner.model.ApkFileInfo
 import kotlinx.coroutines.*
 import java.io.File
 

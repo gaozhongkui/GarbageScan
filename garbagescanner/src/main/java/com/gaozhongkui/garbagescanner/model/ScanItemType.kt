@@ -1,4 +1,4 @@
-package com.gaozhongkui.garbagescanner.data.model
+package com.gaozhongkui.garbagescanner.model
 
 /**
  * 扫描的类型

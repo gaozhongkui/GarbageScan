@@ -1,4 +1,4 @@
-package com.gaozhongkui.garbagescanner.scanner
+package com.gaozhongkui.garbagescanner.base
 
 import android.content.Context
 import com.gaozhongkui.garbagescanner.callback.IScannerCallback

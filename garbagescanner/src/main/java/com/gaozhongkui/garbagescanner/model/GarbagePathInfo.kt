@@ -1,4 +1,6 @@
-package com.gaozhongkui.garbagescanner.data.model
+package com.gaozhongkui.garbagescanner.model
+
+import com.gaozhongkui.garbagescanner.base.BaseScanInfo
 
 data class GarbagePathInfo(val id: Long, val filePath: String, val packageName: String) : BaseScanInfo(){
 

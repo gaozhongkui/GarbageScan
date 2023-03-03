@@ -1,10 +1,11 @@
 package com.gaozhongkui.garbagescanner.scanner
 
 import android.content.Context
+import com.gaozhongkui.garbagescanner.base.BaseScanner
 import com.gaozhongkui.garbagescanner.callback.IScannerCallback
-import com.gaozhongkui.garbagescanner.data.db.GarbageManagerDB
-import com.gaozhongkui.garbagescanner.data.model.GarbagePathInfo
-import com.gaozhongkui.garbagescanner.data.model.UnloadResidueInfo
+import com.gaozhongkui.garbagescanner.database.GarbageManagerDB
+import com.gaozhongkui.garbagescanner.model.GarbagePathInfo
+import com.gaozhongkui.garbagescanner.model.UnloadResidueInfo
 import com.gaozhongkui.garbagescanner.utils.CommonUtil
 import kotlinx.coroutines.*
 import java.io.File

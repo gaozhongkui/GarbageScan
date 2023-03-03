@@ -2,8 +2,9 @@ package com.gaozhongkui.garbagescanner.scanner
 
 import android.content.Context
 import android.content.pm.PackageManager
+import com.gaozhongkui.garbagescanner.base.BaseScanner
 import com.gaozhongkui.garbagescanner.callback.IScannerCallback
-import com.gaozhongkui.garbagescanner.data.model.AppCacheInfo
+import com.gaozhongkui.garbagescanner.model.AppCacheInfo
 import com.gaozhongkui.garbagescanner.utils.AppPackageUtils
 import com.gaozhongkui.garbagescanner.utils.CommonUtil
 import kotlinx.coroutines.DelicateCoroutinesApi
