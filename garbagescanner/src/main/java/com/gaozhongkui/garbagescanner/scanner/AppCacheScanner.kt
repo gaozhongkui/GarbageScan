@@ -13,7 +13,7 @@ import kotlinx.coroutines.launch
 import java.util.concurrent.CountDownLatch
 
 /**
- * 应用缓冲扫描
+ * 应用缓存扫描
  */
 class AppCacheScanner : BaseScanner {
     private var isStopScanner = false
