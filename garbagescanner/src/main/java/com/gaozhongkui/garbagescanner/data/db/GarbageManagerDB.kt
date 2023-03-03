@@ -17,6 +17,34 @@ class GarbageManagerDB(cxt: Context) : SQLiteOpenHelper(cxt, DATABASE_NAME, null
     override fun onUpgrade(p0: SQLiteDatabase?, p1: Int, p2: Int) {
     }
 
+    fun getAdGarbagePathInfoList(): List<GarbagePathInfo> {
+        val pathList: MutableList<GarbagePathInfo> = mutableListOf()
+        readableDatabase.query(
+            "file_path_info_clean", null, null, null, null, null, null
+        ).use { c ->
+            if (c != null && c.moveToFirst()) {
+                do {
+                    val idIndex = c.getColumnIndex("id")
+                    val id = c.getInt(idIndex).toLong()
+                    val packageNameIndex = c.getColumnIndex("packageName")
+                    val packageName = c.getString(packageNameIndex)
+                    val appNameIndex = c.getColumnIndex("appName")
+                    val appName = c.getString(appNameIndex)
+                    val garbageTypeIndex = c.getColumnIndex("garbagetype")
+                    val garbageType = c.getString(garbageTypeIndex)
+                    val garbageNameIndex = c.getColumnIndex("garbagename")
+                    val garbageName = c.getString(garbageNameIndex)
+                    val filePathIndex = c.getColumnIndex("filePath")
+                    val filePath = c.getString(filePathIndex)
+                    val garbagePathInfo = GarbagePathInfo(id, filePath, packageName, garbageName)
+                    garbagePathInfo.name = appName
+                    pathList.add(garbagePathInfo)
+                } while (c.moveToNext())
+            }
+        }
+        readableDatabase.close()
+        return pathList
+    }
     fun getDBGarbagePathInfoList(): List<GarbagePathInfo> {
         val pathList: MutableList<GarbagePathInfo> = mutableListOf()
         readableDatabase.query(
