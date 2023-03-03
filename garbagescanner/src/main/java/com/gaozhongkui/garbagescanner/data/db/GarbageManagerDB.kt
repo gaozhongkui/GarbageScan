@@ -20,7 +20,7 @@ class GarbageManagerDB(cxt: Context) : SQLiteOpenHelper(cxt, DATABASE_NAME, null
     fun getAdGarbagePathInfoList(): List<GarbagePathInfo> {
         val pathList: MutableList<GarbagePathInfo> = mutableListOf()
         readableDatabase.query(
-            "file_path_info_clean", null, "garbagetype=?", arrayOf("ad"), null, null, null
+            "file_path_info_clean", null, "garbagetype LIKE ?", arrayOf("%Ad%"), null, null, null
         ).use { c ->
             if (c != null && c.moveToFirst()) {
                 do {
@@ -30,14 +30,9 @@ class GarbageManagerDB(cxt: Context) : SQLiteOpenHelper(cxt, DATABASE_NAME, null
                     val packageName = c.getString(packageNameIndex)
                     val appNameIndex = c.getColumnIndex("appName")
                     val appName = c.getString(appNameIndex)
-                    val garbageTypeIndex = c.getColumnIndex("garbagetype")
-                    val garbageType = c.getString(garbageTypeIndex)
-                    val garbageNameIndex = c.getColumnIndex("garbagename")
-                    val garbageName = c.getString(garbageNameIndex)
                     val filePathIndex = c.getColumnIndex("filePath")
                     val filePath = c.getString(filePathIndex)
-                    val garbagePathInfo = GarbagePathInfo(id, filePath, packageName, garbageName)
-                    garbagePathInfo.itemType
+                    val garbagePathInfo = GarbagePathInfo(id, filePath, packageName)
                     garbagePathInfo.name = appName
                     pathList.add(garbagePathInfo)
                 } while (c.moveToNext())
@@ -59,13 +54,9 @@ class GarbageManagerDB(cxt: Context) : SQLiteOpenHelper(cxt, DATABASE_NAME, null
                     val packageName = c.getString(packageNameIndex)
                     val appNameIndex = c.getColumnIndex("appName")
                     val appName = c.getString(appNameIndex)
-                    val garbageTypeIndex = c.getColumnIndex("garbagetype")
-                    val garbageType = c.getString(garbageTypeIndex)
-                    val garbageNameIndex = c.getColumnIndex("garbagename")
-                    val garbageName = c.getString(garbageNameIndex)
                     val filePathIndex = c.getColumnIndex("filePath")
                     val filePath = c.getString(filePathIndex)
-                    val garbagePathInfo = GarbagePathInfo(id, filePath, packageName, garbageName)
+                    val garbagePathInfo = GarbagePathInfo(id, filePath, packageName)
                     garbagePathInfo.name = appName
                     pathList.add(garbagePathInfo)
                 } while (c.moveToNext())

@@ -8,6 +8,7 @@ import com.gaozhongkui.garbagescanner.data.model.AdGarbageInfo
 import com.gaozhongkui.garbagescanner.utils.CommonUtil
 import kotlinx.coroutines.*
 import java.io.File
+import java.util.Collections
 
 /**
  * 卸载的垃圾扫描
@@ -15,14 +16,14 @@ import java.io.File
 class AdGarbageScanner : BaseScanner {
     private var isStopScanner = false
     private var fileScanner: FileScanner? = null
-    private val unloadResidueList = mutableListOf<AdGarbageInfo>()
+    private val unloadResidueList = Collections.synchronizedList(ArrayList<AdGarbageInfo>())
 
     @OptIn(DelicateCoroutinesApi::class)
     override fun startScan(cxt: Context, callback: IScannerCallback) {
         isStopScanner = false
         callback.onStart()
         GlobalScope.launch(Dispatchers.IO) {
-            val pathInfoList = getAppUnInstalled(cxt)
+            val pathInfoList = getAdAppInstalled(cxt)
             if (isStopScanner || !isActive) {
                 return@launch
             }
@@ -55,6 +56,7 @@ class AdGarbageScanner : BaseScanner {
                         info.fileSize = size
                         info.name = file.name
                         unloadResidueList.add(info)
+                        callback.onFind(info)
                     }
                 }
 
@@ -67,9 +69,9 @@ class AdGarbageScanner : BaseScanner {
     }
 
     /**
-     * 获取未安装的应用
+     * 获取已安装的广告应用
      */
-    private fun getAppUnInstalled(cxt: Context): List<GarbagePathInfo> {
+    private fun getAdAppInstalled(cxt: Context): List<GarbagePathInfo> {
         val resultList = mutableListOf<GarbagePathInfo>()
         val garbageDB = GarbageManagerDB(cxt)
         val infoList = garbageDB.getAdGarbagePathInfoList()
