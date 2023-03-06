@@ -40,7 +40,7 @@ object AppPackageUtils {
                 sizeCallback.invoke(cacheBytes)
 
             } catch (e: Exception) {
-                e.printStackTrace()
+                sizeCallback.invoke(0)
             }
         } else {
             val method = packageManager.javaClass.getMethod(
@@ -50,6 +50,8 @@ object AppPackageUtils {
                 override fun onGetStatsCompleted(packageStats: PackageStats, succeeded: Boolean) {
                     if (succeeded && packageStats.cacheSize > 0) {
                         sizeCallback.invoke(packageStats.cacheSize)
+                    } else {
+                        sizeCallback.invoke(0)
                     }
                 }
             })

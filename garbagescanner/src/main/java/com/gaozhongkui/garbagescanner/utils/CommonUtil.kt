@@ -41,4 +41,8 @@ object CommonUtil {
         }
         return resultArray.toTypedArray()
     }
+
+    fun getCpuCoreCount(): Int {
+        return Runtime.getRuntime().availableProcessors()
+    }
 }

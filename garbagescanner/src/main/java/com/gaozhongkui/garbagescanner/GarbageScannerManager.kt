@@ -6,6 +6,7 @@ import com.gaozhongkui.garbagescanner.callback.IGarbageScannerCallback
 import com.gaozhongkui.garbagescanner.callback.IScannerCallback
 import com.gaozhongkui.garbagescanner.model.ScanItemType
 import com.gaozhongkui.garbagescanner.scanner.*
+import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 
 /**
@@ -27,6 +28,9 @@ class GarbageScannerManager {
     //开始的次数
     private val startItemCount = AtomicInteger(SCANNER_TYPE_COUNT)
 
+    //是否扫描中国呢
+    private val isScanning = AtomicBoolean(false)
+
     /**
      * 开始所有的扫描
      */
@@ -35,6 +39,12 @@ class GarbageScannerManager {
         if (scannerCallback == null) {
             throw NullPointerException("IGarbageScannerCallback is null")
         }
+
+        //判断如果为扫描中时，则直接返回
+        if (isScanning.get()) {
+            return
+        }
+        isScanning.set(true)
 
         finishItemCount.set(SCANNER_TYPE_COUNT)
         startItemCount.set(SCANNER_TYPE_COUNT)
@@ -54,6 +64,7 @@ class GarbageScannerManager {
      * 停止所有的扫描
      */
     fun stopAllScan() {
+        isScanning.set(false)
         adGarbageScanner.stopScan()
         apkFileScanner.stopScan()
         appCacheScanner.stopScan()
@@ -104,6 +115,7 @@ class GarbageScannerManager {
                 return
             }
             scannerCallback?.onFinish(mapTypes)
+            isScanning.set(false)
         }
 
     }
