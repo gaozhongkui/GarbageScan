@@ -5,6 +5,7 @@ import android.util.Log
 import android.view.View
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.gaozhongkui.garbagescanner.GarbageScannerManager
 import com.gaozhongkui.garbagescanner.base.BaseScanInfo
 import com.gaozhongkui.garbagescanner.callback.IGarbageScannerCallback
@@ -17,7 +18,6 @@ import pokercc.android.expandablerecyclerview.ExpandableRecyclerView
 class MainActivity : AppCompatActivity() {
     private lateinit var pathTxt: TextView
     private lateinit var recyclerView: ExpandableRecyclerView
-    private lateinit var adapter: MyExpandableAdapter
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -26,8 +26,9 @@ class MainActivity : AppCompatActivity() {
         findViewById<View>(R.id.bt_start).setOnClickListener {
             startScanner()
         }
-        adapter = MyExpandableAdapter(layoutInflater)
-        recyclerView.adapter = adapter
+
+        recyclerView.layoutManager = LinearLayoutManager(this)
+
     }
 
     private fun startScanner() {
@@ -73,7 +74,10 @@ class MainActivity : AppCompatActivity() {
                     Log.d(TAG, "onFinish() called with: mapTypes = $mapTypes")
                     pathTxt.visibility = View.GONE
                     recyclerView.visibility = View.VISIBLE
+
+                    val adapter = MyExpandableAdapter(layoutInflater)
                     adapter.setData(mapTypes)
+                    recyclerView.adapter = adapter
                 }
 
             })
