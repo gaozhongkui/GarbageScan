@@ -122,7 +122,10 @@ class NormalGarbageScanner : BaseScanner {
             null,
             null
         )?.use {
-            it.moveToFirst()
+            val moveToFirst = it.moveToFirst()
+            if (!moveToFirst) {
+                return@use
+            }
             do {
                 val filePath = it.getString(0)
                 val fileSize = it.getLong(1)

@@ -85,7 +85,10 @@ class ApkFileScanner : BaseScanner {
         resolver.query(
             MediaStore.Files.getContentUri("external"), arrayOf("_data", "_size"), "_data like ?", arrayOf("%.apk%"), null
         )?.use {
-            it.moveToFirst()
+            val moveToFirst = it.moveToFirst()
+            if (!moveToFirst) {
+                return@use
+            }
             do {
                 val apkPath = it.getString(0)
                 val apkSize = it.getLong(1)
