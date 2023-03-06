@@ -1,6 +1,8 @@
 package com.gaozhongkui.garbagescanner
 
 import android.content.Context
+import android.os.Handler
+import android.os.Looper
 import com.gaozhongkui.garbagescanner.base.BaseScanInfo
 import com.gaozhongkui.garbagescanner.callback.IGarbageScannerCallback
 import com.gaozhongkui.garbagescanner.callback.IScannerCallback
@@ -30,6 +32,16 @@ class GarbageScannerManager {
 
     //是否扫描中国呢
     private val isScanning = AtomicBoolean(false)
+
+    @Suppress("UNCHECKED_CAST")
+    private val handler = Handler(Looper.getMainLooper()) { msg ->
+        if (msg.what == MSG_NOTIFY_FIND) {
+            scannerCallback?.onFind(msg.obj as BaseScanInfo)
+        } else if (msg.what == MSG_NOTIFY_FINISH) {
+            scannerCallback?.onFinish(msg.obj as Map<ScanItemType, List<BaseScanInfo>>)
+        }
+        false
+    }
 
     /**
      * 开始所有的扫描
@@ -100,7 +112,9 @@ class GarbageScannerManager {
                 return
             }
             startScannerTime = System.currentTimeMillis()
-            scannerCallback?.onFind(info)
+            handler.removeMessages(MSG_NOTIFY_FIND)
+            val message = handler.obtainMessage(MSG_NOTIFY_FIND, info)
+            handler.sendMessage(message)
         }
 
         override fun onFinish(totalList: List<BaseScanInfo>) {
@@ -114,7 +128,9 @@ class GarbageScannerManager {
             if (value > 0) {
                 return
             }
-            scannerCallback?.onFinish(mapTypes)
+            handler.removeMessages(MSG_NOTIFY_FINISH)
+            val message = handler.obtainMessage(MSG_NOTIFY_FINISH, mapTypes)
+            handler.sendMessage(message)
             isScanning.set(false)
         }
 
@@ -123,6 +139,8 @@ class GarbageScannerManager {
     companion object {
         private const val SCANNER_TYPE_COUNT = 5
         private const val CALL_BACK_INTERVAL_TIME = 10
+        private const val MSG_NOTIFY_FIND = 1068
+        private const val MSG_NOTIFY_FINISH = 1088
     }
 
 }
