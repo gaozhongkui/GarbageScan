@@ -17,7 +17,7 @@ import java.util.Collections
 class AdGarbageScanner : BaseScanner {
     private var isStopScanner = false
     private var fileScanner: FileScanner? = null
-    private val unloadResidueList = Collections.synchronizedList(ArrayList<AdGarbageInfo>())
+    private val adGarbageList = Collections.synchronizedList(ArrayList<AdGarbageInfo>())
 
     @OptIn(DelicateCoroutinesApi::class)
     override fun startScan(cxt: Context, callback: IScannerCallback) {
@@ -41,13 +41,19 @@ class AdGarbageScanner : BaseScanner {
      * 开始扫描卸载垃圾文件
      */
     private fun scanUnloadResidue(pathInfoList: List<GarbagePathInfo>, callback: IScannerCallback) {
+        //判断如果集合为空时，则直接返回
+        if (pathInfoList.isEmpty()) {
+            callback.onFinish(emptyList())
+            return
+        }
+
         fileScanner = FileScanner()
         fileScanner?.apply {
             setScanPath(CommonUtil.getPathList(pathInfoList))
             setScanParams(null, null, 4, -1, true)
             startScan(object : FileScanner.ScanCallback {
                 override fun onStart() {
-                    unloadResidueList.clear()
+                    adGarbageList.clear()
                 }
 
                 override fun onFind(threadId: Long, path: String?, size: Long, modify: Long) {
@@ -56,13 +62,13 @@ class AdGarbageScanner : BaseScanner {
                         val info = AdGarbageInfo("", it)
                         info.fileSize = size
                         info.name = file.name
-                        unloadResidueList.add(info)
+                        adGarbageList.add(info)
                         callback.onFind(info)
                     }
                 }
 
                 override fun onFinish(isCancel: Boolean) {
-                    callback.onFinish(unloadResidueList)
+                    callback.onFinish(adGarbageList)
                 }
 
             })

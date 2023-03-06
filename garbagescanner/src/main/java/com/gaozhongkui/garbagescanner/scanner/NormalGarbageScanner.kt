@@ -41,10 +41,17 @@ class NormalGarbageScanner : BaseScanner {
 
 
     private fun scanGarbageFile(pathInfoList: List<GarbagePathInfo>, existGarbageFileList: MutableList<NormalGarbageInfo>, callback: IScannerCallback) {
+        //判断如果集合为空时，则直接返回
+        if (pathInfoList.isEmpty()) {
+            callback.onFinish(existGarbageFileList)
+            return
+        }
+
+
         fileScanner = FileScanner()
         fileScanner?.apply {
             setScanPath(CommonUtil.getPathList(pathInfoList))
-            val suffixes = arrayOf("log","txt","db")
+            val suffixes = arrayOf("log", "txt", "db")
             setScanParams(suffixes, null, 4, -1, true)
             startScan(object : FileScanner.ScanCallback {
                 val scanList = Collections.synchronizedList(mutableListOf<NormalGarbageInfo>())

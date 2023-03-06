@@ -41,6 +41,12 @@ class UnloadResidueScanner : BaseScanner {
      * 开始扫描卸载垃圾文件
      */
     private fun scanUnloadResidue(pathInfoList: List<GarbagePathInfo>, callback: IScannerCallback) {
+        //判断如果集合为空时，则直接返回
+        if (pathInfoList.isEmpty()) {
+            callback.onFinish(emptyList())
+            return
+        }
+
         fileScanner = FileScanner()
         fileScanner?.apply {
             setScanPath(CommonUtil.getPathList(pathInfoList))
