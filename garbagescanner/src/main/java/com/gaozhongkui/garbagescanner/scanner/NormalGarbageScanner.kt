@@ -11,6 +11,7 @@ import com.gaozhongkui.garbagescanner.model.NormalGarbageInfo
 import com.gaozhongkui.garbagescanner.utils.CommonUtil
 import kotlinx.coroutines.*
 import java.io.File
+import java.util.Collections
 
 /**
  * 常规的垃圾清理（系统垃圾、非广告类型、非apk类型）
@@ -43,8 +44,10 @@ class NormalGarbageScanner : BaseScanner {
         fileScanner = FileScanner()
         fileScanner?.apply {
             setScanPath(getPathList(pathInfoList))
-            setScanParams(null, null, 4, -1, true)
+            val suffixes = arrayOf("log","txt","db")
+            setScanParams(suffixes, null, 4, -1, true)
             startScan(object : FileScanner.ScanCallback {
+                val scanList = Collections.synchronizedList(mutableListOf<NormalGarbageInfo>())
                 override fun onStart() {
                 }
 
@@ -58,13 +61,14 @@ class NormalGarbageScanner : BaseScanner {
                         val info = NormalGarbageInfo(it)
                         info.fileSize = size
                         info.name = file.name
-                        existGarbageFileList.add(info)
+                        scanList.add(info)
                         //回调找到的APK
                         callback.onFind(info)
                     }
                 }
 
                 override fun onFinish(isCancel: Boolean) {
+                    existGarbageFileList.addAll(scanList)
                     callback.onFinish(existGarbageFileList)
                 }
 
