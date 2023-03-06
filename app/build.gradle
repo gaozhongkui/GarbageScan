@@ -44,6 +44,6 @@ dependencies {
 
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.1'
 
-
+    implementation("com.github.pokercc:ExpandableRecyclerView:0.9.3")
     implementation project(path: ':garbagescanner')
 }

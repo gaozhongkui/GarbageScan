@@ -35,10 +35,16 @@ class GarbageScannerManager {
 
     @Suppress("UNCHECKED_CAST")
     private val handler = Handler(Looper.getMainLooper()) { msg ->
-        if (msg.what == MSG_NOTIFY_FIND) {
-            scannerCallback?.onFind(msg.obj as BaseScanInfo)
-        } else if (msg.what == MSG_NOTIFY_FINISH) {
-            scannerCallback?.onFinish(msg.obj as Map<ScanItemType, List<BaseScanInfo>>)
+        when (msg.what) {
+            MSG_NOTIFY_START -> {
+                scannerCallback?.onStart()
+            }
+            MSG_NOTIFY_FIND -> {
+                scannerCallback?.onFind(msg.obj as BaseScanInfo)
+            }
+            MSG_NOTIFY_FINISH -> {
+                scannerCallback?.onFinish(msg.obj as Map<ScanItemType, List<BaseScanInfo>>)
+            }
         }
         false
     }
@@ -103,7 +109,8 @@ class GarbageScannerManager {
                 return
             }
             startScannerTime = System.currentTimeMillis()
-            scannerCallback?.onStart()
+            handler.removeMessages(MSG_NOTIFY_START)
+            handler.sendEmptyMessage(MSG_NOTIFY_START)
         }
 
         override fun onFind(info: BaseScanInfo) {
@@ -141,6 +148,7 @@ class GarbageScannerManager {
         private const val CALL_BACK_INTERVAL_TIME = 10
         private const val MSG_NOTIFY_FIND = 1068
         private const val MSG_NOTIFY_FINISH = 1088
+        private const val MSG_NOTIFY_START = 1086
     }
 
 }

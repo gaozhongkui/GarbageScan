@@ -1,36 +1,84 @@
 package com.example.garbagescan
 
 import android.os.Bundle
-import android.os.Environment
 import android.util.Log
+import android.view.View
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.gaozhongkui.garbagescanner.GarbageScannerManager
 import com.gaozhongkui.garbagescanner.base.BaseScanInfo
 import com.gaozhongkui.garbagescanner.callback.IGarbageScannerCallback
-import com.gaozhongkui.garbagescanner.model.ScanItemType
-import com.gaozhongkui.garbagescanner.scanner.FileScanner
+import com.gaozhongkui.garbagescanner.model.*
+import com.gaozhongkui.garbagescanner.utils.AppPackageUtils
+import com.gaozhongkui.garbagescanner.utils.checkStoragePermission
+import com.gaozhongkui.garbagescanner.utils.requestStoragePermission
+import pokercc.android.expandablerecyclerview.ExpandableRecyclerView
 
 class MainActivity : AppCompatActivity() {
+    private lateinit var pathTxt: TextView
+    private lateinit var recyclerView: ExpandableRecyclerView
+    private lateinit var adapter: MyExpandableAdapter
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        val mFileScanner = GarbageScannerManager()
-        mFileScanner.setScannerCallback(object : IGarbageScannerCallback {
-            override fun onStart() {
-                Log.d(TAG, "onStart() called")
-            }
+        pathTxt = findViewById(R.id.tv_path)
+        recyclerView = findViewById(R.id.recycler_view)
+        findViewById<View>(R.id.bt_start).setOnClickListener {
+            startScanner()
+        }
+        adapter = MyExpandableAdapter(layoutInflater)
+        recyclerView.adapter = adapter
+    }
 
-            override fun onFind(info: BaseScanInfo) {
-                Log.d(TAG, "onFind() called with: info = $info")
-            }
+    private fun startScanner() {
+        if (!AppPackageUtils.hasPermissionToReadNetworkStats(this)) {
+            AppPackageUtils.requestReadNetworkStats(this)
+        } else if (!checkStoragePermission(this)) {
+            requestStoragePermission(this)
+        } else {
+            val mFileScanner = GarbageScannerManager()
+            mFileScanner.setScannerCallback(object : IGarbageScannerCallback {
+                override fun onStart() {
+                    Log.d(TAG, "onStart() called")
+                    pathTxt.visibility = View.VISIBLE
+                    recyclerView.visibility = View.GONE
+                }
 
-            override fun onFinish(mapTypes: Map<ScanItemType, List<BaseScanInfo>>) {
-                Log.d(TAG, "onFinish() called with: mapTypes = $mapTypes")
-            }
+                override fun onFind(info: BaseScanInfo) {
+                    Log.d(TAG, "onFind() called with: info = $info")
+                    val filePath = when (info) {
+                        is AdGarbageInfo -> {
+                            info.filePath
+                        }
+                        is ApkFileInfo -> {
+                            info.filePath
+                        }
+                        is GarbagePathInfo -> {
+                            info.filePath
+                        }
+                        is NormalGarbageInfo -> {
+                            info.filePath
+                        }
+                        is UnloadResidueInfo -> {
+                            info.filePath
+                        }
+                        else -> {
+                            ""
+                        }
+                    }
+                    pathTxt.text = "扫描路径：${filePath}"
+                }
 
-        })
-        mFileScanner.startAllScan(this)
+                override fun onFinish(mapTypes: Map<ScanItemType, List<BaseScanInfo>>) {
+                    Log.d(TAG, "onFinish() called with: mapTypes = $mapTypes")
+                    pathTxt.visibility = View.GONE
+                    recyclerView.visibility = View.VISIBLE
+                    adapter.setData(mapTypes)
+                }
 
+            })
+            mFileScanner.startAllScan(this)
+        }
     }
 
     companion object {
