@@ -20,13 +20,14 @@
             android:id="@+id/tv_path"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="扫描路径："
-            android:textSize="14sp"
-            android:ellipsize="middle"
-            android:textColor="@color/black"
             android:layout_gravity="center"
             android:layout_marginHorizontal="16dp"
-            android:lines="1" />
+            android:ellipsize="middle"
+            android:lines="1"
+            android:text="扫描路径："
+            android:textColor="@color/black"
+            android:textSize="14sp" />
+
         <pokercc.android.expandablerecyclerview.ExpandableRecyclerView
             android:id="@+id/recycler_view"
             android:layout_width="match_parent"
@@ -44,5 +45,13 @@
         android:text="开始扫描"
         tools:ignore="HardcodedText" />
 
+    <Button
+        android:id="@+id/bt_delete"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginHorizontal="30dp"
+        android:layout_marginTop="20dp"
+        android:text="删除垃圾"
+        tools:ignore="HardcodedText" />
 
 </LinearLayout>

@@ -27,7 +27,16 @@ class MainActivity : AppCompatActivity() {
             startScanner()
         }
 
+        findViewById<View>(R.id.bt_delete).setOnClickListener {
+            deleteFiles()
+        }
+
+
         recyclerView.layoutManager = LinearLayoutManager(this)
+
+    }
+
+    private fun deleteFiles() {
 
     }
 
@@ -39,10 +48,12 @@ class MainActivity : AppCompatActivity() {
         } else {
             val mFileScanner = GarbageScannerManager()
             mFileScanner.setScannerCallback(object : IGarbageScannerCallback {
+                var startTime = 0L
                 override fun onStart() {
                     Log.d(TAG, "onStart() called")
                     pathTxt.visibility = View.VISIBLE
                     recyclerView.visibility = View.GONE
+                    startTime = System.currentTimeMillis()
                 }
 
                 override fun onFind(info: BaseScanInfo) {
@@ -78,6 +89,7 @@ class MainActivity : AppCompatActivity() {
                     val adapter = MyExpandableAdapter(layoutInflater)
                     adapter.setData(mapTypes)
                     recyclerView.adapter = adapter
+                    Log.d(TAG, "onFinish() called with: 耗时 = " + (System.currentTimeMillis() - startTime))
                 }
 
             })
