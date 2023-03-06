@@ -9,6 +9,7 @@ import com.gaozhongkui.garbagescanner.callback.IScannerCallback
 import com.gaozhongkui.garbagescanner.model.ApkFileInfo
 import kotlinx.coroutines.*
 import java.io.File
+import java.util.*
 
 class ApkFileScanner : BaseScanner {
     private var isStopScanner = false
@@ -79,7 +80,7 @@ class ApkFileScanner : BaseScanner {
      * 先从内容提供者中获取文件
      */
     private fun queryContentResolverExternal(cxt: Context, callback: IScannerCallback): MutableList<ApkFileInfo> {
-        val result = mutableListOf<ApkFileInfo>()
+        val result = Collections.synchronizedList(mutableListOf<ApkFileInfo>())
         val resolver = cxt.contentResolver
         resolver.query(
             MediaStore.Files.getContentUri("external"), arrayOf("_data", "_size"), "_data like ?", arrayOf("%.apk%"), null

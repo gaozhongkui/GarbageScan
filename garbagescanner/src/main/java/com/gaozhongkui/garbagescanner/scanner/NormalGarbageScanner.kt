@@ -43,7 +43,7 @@ class NormalGarbageScanner : BaseScanner {
     private fun scanGarbageFile(pathInfoList: List<GarbagePathInfo>, existGarbageFileList: MutableList<NormalGarbageInfo>, callback: IScannerCallback) {
         fileScanner = FileScanner()
         fileScanner?.apply {
-            setScanPath(getPathList(pathInfoList))
+            setScanPath(CommonUtil.getPathList(pathInfoList))
             val suffixes = arrayOf("log","txt","db")
             setScanParams(suffixes, null, 4, -1, true)
             startScan(object : FileScanner.ScanCallback {
@@ -80,6 +80,10 @@ class NormalGarbageScanner : BaseScanner {
     private fun getPathList(pathInfoList: List<GarbagePathInfo>): Array<String> {
         val resultArray = mutableListOf<String>()
         for (info in pathInfoList) {
+            //判断如果已经有了，则不需要重复添加
+            if (resultArray.contains(info.filePath)) {
+                continue
+            }
             resultArray.add(info.filePath)
         }
         return resultArray.toTypedArray()

@@ -43,7 +43,7 @@ class AdGarbageScanner : BaseScanner {
     private fun scanUnloadResidue(pathInfoList: List<GarbagePathInfo>, callback: IScannerCallback) {
         fileScanner = FileScanner()
         fileScanner?.apply {
-            setScanPath(getPathList(pathInfoList))
+            setScanPath(CommonUtil.getPathList(pathInfoList))
             setScanParams(null, null, 4, -1, true)
             startScan(object : FileScanner.ScanCallback {
                 override fun onStart() {
@@ -89,11 +89,4 @@ class AdGarbageScanner : BaseScanner {
         return resultList
     }
 
-    private fun getPathList(pathInfoList: List<GarbagePathInfo>): Array<String> {
-        val resultArray = mutableListOf<String>()
-        for (info in pathInfoList) {
-            resultArray.add(info.filePath)
-        }
-        return resultArray.toTypedArray()
-    }
 }

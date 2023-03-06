@@ -9,6 +9,7 @@ import com.gaozhongkui.garbagescanner.model.UnloadResidueInfo
 import com.gaozhongkui.garbagescanner.utils.CommonUtil
 import kotlinx.coroutines.*
 import java.io.File
+import java.util.Collections
 
 /**
  * 卸载的垃圾扫描
@@ -16,7 +17,7 @@ import java.io.File
 class UnloadResidueScanner : BaseScanner {
     private var isStopScanner = false
     private var fileScanner: FileScanner? = null
-    private val unloadResidueList = mutableListOf<UnloadResidueInfo>()
+    private val unloadResidueList = Collections.synchronizedList(mutableListOf<UnloadResidueInfo>())
 
     @OptIn(DelicateCoroutinesApi::class)
     override fun startScan(cxt: Context, callback: IScannerCallback) {
@@ -42,7 +43,7 @@ class UnloadResidueScanner : BaseScanner {
     private fun scanUnloadResidue(pathInfoList: List<GarbagePathInfo>, callback: IScannerCallback) {
         fileScanner = FileScanner()
         fileScanner?.apply {
-            setScanPath(getPathList(pathInfoList))
+            setScanPath(CommonUtil.getPathList(pathInfoList))
             setScanParams(null, null, 4, -1, true)
             startScan(object : FileScanner.ScanCallback {
                 override fun onStart() {
@@ -87,11 +88,4 @@ class UnloadResidueScanner : BaseScanner {
         return resultList
     }
 
-    private fun getPathList(pathInfoList: List<GarbagePathInfo>): Array<String> {
-        val resultArray = mutableListOf<String>()
-        for (info in pathInfoList) {
-            resultArray.add(info.filePath)
-        }
-        return resultArray.toTypedArray()
-    }
 }
