@@ -42,7 +42,7 @@ class ApkFileScanner : BaseScanner {
             val sdPath = Environment.getExternalStorageDirectory().absolutePath
             val scanPath = arrayOf(sdPath)
             setScanPath(scanPath)
-            setScanParams(arrayOf("apk", "aab", "apks"), null, 4, -1, true)
+            setScanParams(arrayOf("apk", "aab", "apks","xapk"), null, 4, -1, true)
             startScan(object : FileScanner.ScanCallback {
                 override fun onStart() {
 
