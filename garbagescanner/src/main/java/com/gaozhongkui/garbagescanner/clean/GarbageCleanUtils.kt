@@ -2,13 +2,11 @@ package com.gaozhongkui.garbagescanner.clean
 
 import android.content.Context
 import android.content.pm.IPackageDataObserver
-import android.net.Uri
 import android.os.Environment
 import android.os.StatFs
 import androidx.documentfile.provider.DocumentFile
 import com.gaozhongkui.garbagescanner.base.BaseScanInfo
-import com.gaozhongkui.garbagescanner.model.AdGarbageInfo
-import com.gaozhongkui.garbagescanner.utils.ExtSdUtils.deleteFiles
+import com.gaozhongkui.garbagescanner.model.*
 import java.io.File
 import java.io.IOException
 
@@ -16,39 +14,64 @@ import java.io.IOException
  * 垃圾清理
  */
 object GarbageCleanUtils {
-    private const val TAG = "GarbageCleanUtils"
+
+    /**
+     * 删除扫描的对象
+     */
+    fun deleteScannerInfo(cxt: Context, list: List<BaseScanInfo>) {
+        list.forEach { info ->
+            deleteScannerInfo(cxt, info)
+        }
+    }
 
     /**
      * 删除扫描的对象
      */
     fun deleteScannerInfo(cxt: Context, info: BaseScanInfo) {
-        if (info is AdGarbageInfo) {
-
+        when (info) {
+            is AdGarbageInfo -> {
+                deleteFile(cxt, info.filePath)
+            }
+            is ApkFileInfo -> {
+                deleteFile(cxt, info.filePath)
+            }
+            is AppCacheInfo -> {
+                clearAppCache(cxt, info.packageName)
+            }
+            is GarbagePathInfo -> {
+                deleteFile(cxt, info.filePath)
+            }
+            is NormalGarbageInfo -> {
+                deleteFile(cxt, info.filePath)
+            }
+            is UnloadResidueInfo -> {
+                deleteFile(cxt, info.filePath)
+            }
         }
     }
 
     /**
      * 清空app的缓冲数据
      */
-    fun clearAppCache(cxt: Context, packageName: String) {
+    private fun clearAppCache(cxt: Context, packageName: String) {
 
     }
 
     /**
      * 删除文件
      */
-    fun deleteFile(context: Context, file: String) {
+    private fun deleteFile(context: Context, file: String) {
         deleteFile(context, File(file))
     }
 
-    fun deleteFile(context: Context, file: File) {
+    private fun deleteFile(context: Context, file: File) {
         forceDelete(context, file)
     }
 
     /**
      * 删除目录
      */
-    fun deleteDirectory(context: Context, dir: String) {
+    private fun deleteDirectory(context: Context, dir: String) {
         deleteDirectory(context, File(dir))
     }
 
@@ -76,7 +99,7 @@ object GarbageCleanUtils {
     }
 
 
-    private fun delDirectory(context: Context, file: File, z: Boolean) {
+    private fun delDirectory(context: Context, file: File, isSelf: Boolean) {
         if (file.exists() && file.isDirectory) {
             val listFiles = file.listFiles() ?: throw IOException("Failed to list contents of $file")
             for (file2 in listFiles) {
@@ -86,7 +109,7 @@ object GarbageCleanUtils {
                     file2.delete()
                 }
             }
-            if (z) {
+            if (isSelf) {
                 file.delete()
             }
         }
@@ -115,7 +138,8 @@ object GarbageCleanUtils {
 
         //如果没有删除，则通过另一种方式删除
         if (file.exists()) {
-            deleteFiles(file, Uri.parse(file.absolutePath), context)
+            DocumentFile.fromFile(file).delete()
         }
+
     }
 }
