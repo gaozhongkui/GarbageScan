@@ -3,6 +3,7 @@ package com.gaozhongkui.garbagescanner.utils
 import android.annotation.TargetApi
 import android.content.Context
 import android.net.Uri
+import android.os.Environment
 import android.util.Log
 import androidx.documentfile.provider.DocumentFile
 import java.io.File
@@ -97,7 +98,7 @@ object ExtSdUtils {
             }
         }
         if (arrayList.isEmpty()) {
-            arrayList.add("/storage/sdcard1")
+            arrayList.add(Environment.getExternalStorageDirectory().absolutePath)
         }
         return arrayList.toTypedArray()
     }

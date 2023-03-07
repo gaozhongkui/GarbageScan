@@ -3,14 +3,10 @@ package com.gaozhongkui.garbagescanner.utils
 import android.content.Context
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
-import android.graphics.drawable.Drawable
-import android.os.Environment
 import com.gaozhongkui.garbagescanner.model.GarbagePathInfo
-import java.text.DecimalFormat
-import java.text.DecimalFormatSymbols
-import java.text.SimpleDateFormat
-import java.util.*
-import java.util.concurrent.TimeUnit
+import java.io.File
+import java.io.FileOutputStream
+import java.io.InputStream
 
 object CommonUtil {
     fun isAppInstalled(context: Context, pkgName: String?): Boolean {
@@ -44,5 +40,31 @@ object CommonUtil {
 
     fun getCpuCoreCount(): Int {
         return Runtime.getRuntime().availableProcessors()
+    }
+
+    fun copyToFile(inputStream: InputStream, destFile: File): Boolean {
+        return try {
+            if (destFile.exists()) {
+                destFile.delete()
+            }
+            val out = FileOutputStream(destFile)
+            try {
+                val buffer = ByteArray(4096)
+                var bytesRead: Int
+                while (inputStream.read(buffer).also { bytesRead = it } >= 0) {
+                    out.write(buffer, 0, bytesRead)
+                }
+            } finally {
+                out.flush()
+                try {
+                    out.fd.sync()
+                } catch (ignored: Exception) {
+                }
+                out.close()
+            }
+            true
+        } catch (e: Exception) {
+            false
+        }
     }
 }

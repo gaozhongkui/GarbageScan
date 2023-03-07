@@ -4,7 +4,7 @@ import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import com.gaozhongkui.garbagescanner.model.GarbagePathInfo
-import com.gaozhongkui.garbagescanner.utils.FileUtils
+import com.gaozhongkui.garbagescanner.utils.CommonUtil.copyToFile
 
 class GarbageManagerDB(cxt: Context) : SQLiteOpenHelper(cxt, DATABASE_NAME, null, DATABASE_VERSION) {
     init {
@@ -82,7 +82,7 @@ class GarbageManagerDB(cxt: Context) : SQLiteOpenHelper(cxt, DATABASE_NAME, null
                     parentDir.mkdirs()
                 }
                 try {
-                    if (FileUtils.copyToFile(cxt.assets.open(DATABASE_NAME), dbFile)) {
+                    if (copyToFile(cxt.assets.open(DATABASE_NAME), dbFile)) {
                         setCurrentVersion(cxt)
                     }
                 } catch (ignore: Exception) {
