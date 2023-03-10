@@ -7,6 +7,9 @@ import android.text.TextUtils
 import com.gaozhongkui.garbagescanner.base.BaseScanner
 import com.gaozhongkui.garbagescanner.callback.IScannerCallback
 import com.gaozhongkui.garbagescanner.model.ApkFileInfo
+import com.gaozhongkui.garbagescanner.model.ScanItemType
+import com.gaozhongkui.garbagescanner.model.SortScannerInfo
+import com.gaozhongkui.garbagescanner.utils.CommonUtil
 import kotlinx.coroutines.*
 import java.io.File
 import java.util.*
@@ -24,7 +27,7 @@ class ApkFileScanner : BaseScanner {
             if (isStopScanner || !isActive) {
                 return@launch
             }
-            scanApkFile(infoList, callback)
+            scanApkFile(cxt, infoList, callback)
         }
     }
 
@@ -36,13 +39,13 @@ class ApkFileScanner : BaseScanner {
     /**
      * 开始扫描apk文件
      */
-    private fun scanApkFile(existApkFileList: MutableList<ApkFileInfo>, callback: IScannerCallback) {
+    private fun scanApkFile(cxt: Context, existApkFileList: MutableList<ApkFileInfo>, callback: IScannerCallback) {
         fileScanner = FileScanner()
         fileScanner?.apply {
             val sdPath = Environment.getExternalStorageDirectory().absolutePath
             val scanPath = arrayOf(sdPath)
             setScanPath(scanPath)
-            setScanParams(arrayOf("apk", "aab", "apks","xapk"), null, 4, -1, true)
+            setScanParams(arrayOf("apk", "aab", "apks", "xapk"), null, 4, -1, true)
             startScan(object : FileScanner.ScanCallback {
                 override fun onStart() {
 
@@ -56,6 +59,7 @@ class ApkFileScanner : BaseScanner {
                     path?.let {
                         val apkFile = File(path)
                         val apkFileInfo = ApkFileInfo(it)
+                        apkFileInfo.appIcon = CommonUtil.getApkIcon(cxt, path)
                         apkFileInfo.fileSize = size
                         apkFileInfo.name = apkFile.name
                         //判断如果已经存在了，则直接返回
@@ -69,7 +73,11 @@ class ApkFileScanner : BaseScanner {
                 }
 
                 override fun onFinish(isCancel: Boolean) {
-                    callback.onFinish(existApkFileList)
+                    //回调解锁
+                    val info = SortScannerInfo(ScanItemType.INSTALL_PACKAGE, existApkFileList)
+                    info.fileSize = CommonUtil.getTotalFileSize(existApkFileList)
+                    info.selectFileTotalSize = info.fileSize
+                    callback.onFinish(info)
                 }
 
             })
@@ -98,6 +106,7 @@ class ApkFileScanner : BaseScanner {
                     continue
                 }
                 val apkFileInfo = ApkFileInfo(apkPath)
+                apkFileInfo.appIcon = CommonUtil.getApkIcon(cxt, apkPath)
                 apkFileInfo.fileSize = apkSize
                 apkFileInfo.name = apkFile.name
                 result.add(apkFileInfo)

@@ -19,7 +19,21 @@ object GarbageCleanUtils {
      * 删除扫描的对象
      */
     fun deleteScannerInfo(cxt: Context, list: List<BaseScanInfo>) {
-        list.forEach { info ->
+        for (info in list) {
+            //判断如果未选中，则不做删除
+            if (!info.isChecked) {
+                continue
+            }
+            deleteScannerInfo(cxt, info)
+        }
+    }
+
+    fun deleteScannerInfo(cxt: Context, softInfo: SortScannerInfo) {
+        for (info in softInfo.childList) {
+            //判断如果未选中，则不做删除
+            if (!info.isChecked) {
+                continue
+            }
             deleteScannerInfo(cxt, info)
         }
     }
@@ -30,7 +44,9 @@ object GarbageCleanUtils {
     fun deleteScannerInfo(cxt: Context, info: BaseScanInfo) {
         when (info) {
             is AdGarbageInfo -> {
-                deleteFile(cxt, info.filePath)
+                info.filePaths.forEach {
+                    deleteFile(cxt, it)
+                }
             }
             is ApkFileInfo -> {
                 deleteFile(cxt, info.filePath)

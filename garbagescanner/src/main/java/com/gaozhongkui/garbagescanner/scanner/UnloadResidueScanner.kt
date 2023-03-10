@@ -1,10 +1,14 @@
 package com.gaozhongkui.garbagescanner.scanner
 
 import android.content.Context
+import android.os.Environment
+import android.text.TextUtils
 import com.gaozhongkui.garbagescanner.base.BaseScanner
 import com.gaozhongkui.garbagescanner.callback.IScannerCallback
 import com.gaozhongkui.garbagescanner.database.GarbageManagerDB
 import com.gaozhongkui.garbagescanner.model.GarbagePathInfo
+import com.gaozhongkui.garbagescanner.model.ScanItemType
+import com.gaozhongkui.garbagescanner.model.SortScannerInfo
 import com.gaozhongkui.garbagescanner.model.UnloadResidueInfo
 import com.gaozhongkui.garbagescanner.utils.CommonUtil
 import kotlinx.coroutines.*
@@ -43,7 +47,8 @@ class UnloadResidueScanner : BaseScanner {
     private fun scanUnloadResidue(pathInfoList: List<GarbagePathInfo>, callback: IScannerCallback) {
         //判断如果集合为空时，则直接返回
         if (pathInfoList.isEmpty()) {
-            callback.onFinish(emptyList())
+            val info = SortScannerInfo(ScanItemType.UNLOAD_RESIDUE, emptyList())
+            callback.onFinish(info)
             return
         }
 
@@ -58,6 +63,9 @@ class UnloadResidueScanner : BaseScanner {
 
                 override fun onFind(threadId: Long, path: String?, size: Long, modify: Long) {
                     path?.let {
+                        if (CommonUtil.isNoScannerFile(path)) {
+                            return
+                        }
                         val file = File(it)
                         val info = UnloadResidueInfo("", it)
                         info.fileSize = size
@@ -67,7 +75,11 @@ class UnloadResidueScanner : BaseScanner {
                 }
 
                 override fun onFinish(isCancel: Boolean) {
-                    callback.onFinish(unloadResidueList)
+                    //回调解锁
+                    val info = SortScannerInfo(ScanItemType.UNLOAD_RESIDUE, unloadResidueList)
+                    info.fileSize = CommonUtil.getTotalFileSize(unloadResidueList)
+                    info.selectFileTotalSize = info.fileSize
+                    callback.onFinish(info)
                 }
 
             })
@@ -79,13 +91,20 @@ class UnloadResidueScanner : BaseScanner {
      */
     private fun getAppUnInstalled(cxt: Context): List<GarbagePathInfo> {
         val resultList = mutableListOf<GarbagePathInfo>()
-        val garbageDB = GarbageManagerDB(cxt)
+        val garbageDB = GarbageManagerDB.getInstance(cxt)
         val infoList = garbageDB.getDBGarbagePathInfoList()
+        val sdRootPath = Environment.getExternalStorageDirectory().absolutePath
         for (info in infoList) {
             //判断如果已经安装了，则直接跳过
             if (CommonUtil.isAppInstalled(cxt, info.packageName)) {
                 continue
             }
+
+            //判断如果是根目录，则直接返回
+            if (TextUtils.equals(sdRootPath, info.filePath)) {
+                continue
+            }
+
             if (isStopScanner) {
                 break
             }

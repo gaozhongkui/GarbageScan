@@ -104,6 +104,10 @@ class MyExpandableAdapter(private val layoutInflater: LayoutInflater) : Expandab
         }
     }
 
+    override fun getGroupItemViewType(groupPosition: Int): Int {
+        return 100
+    }
+
 
     class NormalViewHolder(itemView: View) : ViewHolder(itemView) {
         val titleTxt: TextView = itemView.findViewById(R.id.tv_title)
@@ -115,6 +119,7 @@ class MyExpandableAdapter(private val layoutInflater: LayoutInflater) : Expandab
     class GroupViewHolder(itemView: View) : ViewHolder(itemView) {
         val titleTxt: TextView = itemView.findViewById(R.id.tv_title)
         val sizeTxt: TextView = itemView.findViewById(R.id.tv_size)
+
     }
 
     private fun getTotalSize(list: List<BaseScanInfo>): Long {

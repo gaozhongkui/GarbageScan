@@ -6,10 +6,12 @@ import android.os.Looper
 import com.gaozhongkui.garbagescanner.base.BaseScanInfo
 import com.gaozhongkui.garbagescanner.callback.IGarbageScannerCallback
 import com.gaozhongkui.garbagescanner.callback.IScannerCallback
-import com.gaozhongkui.garbagescanner.model.ScanItemType
+import com.gaozhongkui.garbagescanner.model.SortScannerInfo
 import com.gaozhongkui.garbagescanner.scanner.*
+import java.util.*
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.atomic.AtomicLong
 
 /**
  * 垃圾扫描管理类
@@ -33,6 +35,9 @@ class GarbageScannerManager {
     //是否扫描中国呢
     private val isScanning = AtomicBoolean(false)
 
+    //总文件大小
+    private val totalFileSize = AtomicLong()
+
     @Suppress("UNCHECKED_CAST")
     private val handler = Handler(Looper.getMainLooper()) { msg ->
         when (msg.what) {
@@ -43,7 +48,7 @@ class GarbageScannerManager {
                 scannerCallback?.onFind(msg.obj as BaseScanInfo)
             }
             MSG_NOTIFY_FINISH -> {
-                scannerCallback?.onFinish(msg.obj as Map<ScanItemType, List<BaseScanInfo>>)
+                scannerCallback?.onFinish(msg.obj as List<SortScannerInfo>)
             }
         }
         false
@@ -64,6 +69,7 @@ class GarbageScannerManager {
         }
         isScanning.set(true)
 
+        totalFileSize.set(0)
         finishItemCount.set(SCANNER_TYPE_COUNT)
         startItemCount.set(SCANNER_TYPE_COUNT)
         adGarbageScanner.startScan(cxt, innerScannerCallback)
@@ -91,6 +97,13 @@ class GarbageScannerManager {
     }
 
     /**
+     * 总文件大小
+     */
+    fun getTotalFileSize(): Long {
+        return totalFileSize.get()
+    }
+
+    /**
      * 设置扫描的回调
      */
     fun setScannerCallback(callback: IGarbageScannerCallback) {
@@ -101,7 +114,7 @@ class GarbageScannerManager {
      * 内部类用于处理所有子类的扫描回调
      */
     private val innerScannerCallback = object : IScannerCallback {
-        private val mapTypes = HashMap<ScanItemType, List<BaseScanInfo>>()
+        private val sortList = Collections.synchronizedList(mutableListOf<SortScannerInfo>())
         private var startScannerTime = 0L
         override fun onStart() {
             val value = startItemCount.decrementAndGet()
@@ -114,6 +127,8 @@ class GarbageScannerManager {
         }
 
         override fun onFind(info: BaseScanInfo) {
+            //计算总文件大小
+            totalFileSize.addAndGet(info.fileSize)
             //小于指定的时间间隔，则直接返回
             if ((System.currentTimeMillis() - startScannerTime) <= CALL_BACK_INTERVAL_TIME) {
                 return
@@ -124,19 +139,22 @@ class GarbageScannerManager {
             handler.sendMessage(message)
         }
 
-        override fun onFinish(totalList: List<BaseScanInfo>) {
-            //判断如果不为空时，则添加到map中
-            if (totalList.isNotEmpty()) {
-                val scanInfo = totalList.first()
-                mapTypes[scanInfo.itemType] = totalList
-            }
-
+        override fun onFinish(softInfo: SortScannerInfo) {
+            //将数据添加到集合中
+            sortList.add(softInfo)
             val value = finishItemCount.decrementAndGet()
             if (value > 0) {
                 return
             }
+            //计算所有的值
+            var allSortTotalSize = 0L
+            sortList.forEach {
+                allSortTotalSize += it.fileSize
+            }
+            totalFileSize.set(allSortTotalSize)
+
             handler.removeMessages(MSG_NOTIFY_FINISH)
-            val message = handler.obtainMessage(MSG_NOTIFY_FINISH, mapTypes)
+            val message = handler.obtainMessage(MSG_NOTIFY_FINISH, sortList)
             handler.sendMessage(message)
             isScanning.set(false)
         }

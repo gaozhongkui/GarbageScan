@@ -5,7 +5,7 @@ import android.util.Log
 import android.view.View
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.GridLayoutManager
 import com.gaozhongkui.garbagescanner.GarbageScannerManager
 import com.gaozhongkui.garbagescanner.base.BaseScanInfo
 import com.gaozhongkui.garbagescanner.callback.IGarbageScannerCallback
@@ -18,6 +18,7 @@ import pokercc.android.expandablerecyclerview.ExpandableRecyclerView
 class MainActivity : AppCompatActivity() {
     private lateinit var pathTxt: TextView
     private lateinit var recyclerView: ExpandableRecyclerView
+    private var adapter: MyExpandableAdapter? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -30,9 +31,21 @@ class MainActivity : AppCompatActivity() {
         findViewById<View>(R.id.bt_delete).setOnClickListener {
             deleteFiles()
         }
+        adapter = MyExpandableAdapter(layoutInflater)
+        recyclerView.adapter = adapter
+//        recyclerView.layoutManager = LinearLayoutManager(this)
+        val manager = GridLayoutManager(this, 3)
+        manager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
+            override fun getSpanSize(position: Int): Int {
+               if( adapter?.getItemViewType(position)==100){
+                   return 3
+               }
+                return 1
+            }
 
+        }
+        recyclerView.layoutManager = manager
 
-        recyclerView.layoutManager = LinearLayoutManager(this)
 
     }
 
@@ -81,14 +94,11 @@ class MainActivity : AppCompatActivity() {
                     pathTxt.text = "扫描路径：${filePath}"
                 }
 
-                override fun onFinish(mapTypes: Map<ScanItemType, List<BaseScanInfo>>) {
-                    Log.d(TAG, "onFinish() called with: mapTypes = $mapTypes")
+                override fun onFinish(sortList: List<SortScannerInfo>) {
+                    Log.d(TAG, "onFinish() called with: mapTypes = $sortList")
                     pathTxt.visibility = View.GONE
                     recyclerView.visibility = View.VISIBLE
-
-                    val adapter = MyExpandableAdapter(layoutInflater)
-                    adapter.setData(mapTypes)
-                    recyclerView.adapter = adapter
+                    adapter?.setData(sortList)
                     Log.d(TAG, "onFinish() called with: 耗时 = " + (System.currentTimeMillis() - startTime))
                 }
 

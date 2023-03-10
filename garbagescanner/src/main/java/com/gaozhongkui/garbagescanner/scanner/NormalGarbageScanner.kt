@@ -1,6 +1,7 @@
 package com.gaozhongkui.garbagescanner.scanner
 
 import android.content.Context
+import android.os.Environment
 import android.provider.MediaStore
 import android.text.TextUtils
 import com.gaozhongkui.garbagescanner.base.BaseScanner
@@ -8,6 +9,8 @@ import com.gaozhongkui.garbagescanner.callback.IScannerCallback
 import com.gaozhongkui.garbagescanner.database.GarbageManagerDB
 import com.gaozhongkui.garbagescanner.model.GarbagePathInfo
 import com.gaozhongkui.garbagescanner.model.NormalGarbageInfo
+import com.gaozhongkui.garbagescanner.model.ScanItemType
+import com.gaozhongkui.garbagescanner.model.SortScannerInfo
 import com.gaozhongkui.garbagescanner.utils.CommonUtil
 import kotlinx.coroutines.*
 import java.io.File
@@ -43,7 +46,10 @@ class NormalGarbageScanner : BaseScanner {
     private fun scanGarbageFile(pathInfoList: List<GarbagePathInfo>, existGarbageFileList: MutableList<NormalGarbageInfo>, callback: IScannerCallback) {
         //判断如果集合为空时，则直接返回
         if (pathInfoList.isEmpty()) {
-            callback.onFinish(existGarbageFileList)
+            val info = SortScannerInfo(ScanItemType.OTHER_GARBAGE, existGarbageFileList)
+            info.fileSize = CommonUtil.getTotalFileSize(existGarbageFileList)
+            info.selectFileTotalSize = info.fileSize
+            callback.onFinish(info)
             return
         }
 
@@ -59,11 +65,10 @@ class NormalGarbageScanner : BaseScanner {
                 }
 
                 override fun onFind(threadId: Long, path: String?, size: Long, modify: Long) {
-                    if (TextUtils.isEmpty(path)) {
-                        return
-                    }
-
                     path?.let {
+                        if (CommonUtil.isNoScannerFile(path)) {
+                            return
+                        }
                         val file = File(it)
                         val info = NormalGarbageInfo(it)
                         info.fileSize = size
@@ -76,24 +81,15 @@ class NormalGarbageScanner : BaseScanner {
 
                 override fun onFinish(isCancel: Boolean) {
                     existGarbageFileList.addAll(scanList)
-                    callback.onFinish(existGarbageFileList)
+                    //回调解锁
+                    val info = SortScannerInfo(ScanItemType.OTHER_GARBAGE, existGarbageFileList)
+                    info.fileSize = CommonUtil.getTotalFileSize(existGarbageFileList)
+                    info.selectFileTotalSize = info.fileSize
+                    callback.onFinish(info)
                 }
 
             })
         }
-    }
-
-
-    private fun getPathList(pathInfoList: List<GarbagePathInfo>): Array<String> {
-        val resultArray = mutableListOf<String>()
-        for (info in pathInfoList) {
-            //判断如果已经有了，则不需要重复添加
-            if (resultArray.contains(info.filePath)) {
-                continue
-            }
-            resultArray.add(info.filePath)
-        }
-        return resultArray.toTypedArray()
     }
 
     /**
@@ -101,11 +97,16 @@ class NormalGarbageScanner : BaseScanner {
      */
     private fun getAppInstalled(cxt: Context): List<GarbagePathInfo> {
         val resultList = mutableListOf<GarbagePathInfo>()
-        val garbageDB = GarbageManagerDB(cxt)
+        val garbageDB = GarbageManagerDB.getInstance(cxt)
         val infoList = garbageDB.getDBGarbagePathInfoList()
+        val sdRootPath = Environment.getExternalStorageDirectory().absolutePath
         for (info in infoList) {
             //判断如果未安装了，则直接跳过
             if (!CommonUtil.isAppInstalled(cxt, info.packageName)) {
+                continue
+            }
+            //判断如果是根目录，则直接返回
+            if (TextUtils.equals(sdRootPath, info.filePath)) {
                 continue
             }
             if (isStopScanner) {

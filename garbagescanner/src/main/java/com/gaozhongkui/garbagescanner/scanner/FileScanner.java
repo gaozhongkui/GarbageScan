@@ -1,15 +1,18 @@
 package com.gaozhongkui.garbagescanner.scanner;
 
+import androidx.annotation.Keep;
+
 /**
  * 文件扫描
  */
+@Keep
 public class FileScanner {
 
     static {
         System.loadLibrary("scanner");
     }
 
-
+    @Keep
     public interface ScanCallback {
         void onStart();
 
