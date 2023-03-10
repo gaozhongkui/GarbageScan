@@ -73,7 +73,7 @@ class MainActivity : AppCompatActivity() {
                     Log.d(TAG, "onFind() called with: info = $info")
                     val filePath = when (info) {
                         is AdGarbageInfo -> {
-                            info.filePath
+                            info.filePaths
                         }
                         is ApkFileInfo -> {
                             info.filePath

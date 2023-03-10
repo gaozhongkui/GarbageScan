@@ -11,9 +11,9 @@ import kotlinx.coroutines.*
 import pokercc.android.expandablerecyclerview.ExpandableAdapter
 
 class MyExpandableAdapter(private val layoutInflater: LayoutInflater) : ExpandableAdapter<ExpandableAdapter.ViewHolder>() {
-    private var mapTypes: Map<ScanItemType, List<BaseScanInfo>>? = null
-    fun setData(mapTypes: Map<ScanItemType, List<BaseScanInfo>>) {
-        this.mapTypes = mapTypes
+    private var sortList: List<SortScannerInfo>? = null
+    fun setData(sortList: List<SortScannerInfo>) {
+        this.sortList = sortList
         notifyDataSetChanged()
     }
 
@@ -21,12 +21,8 @@ class MyExpandableAdapter(private val layoutInflater: LayoutInflater) : Expandab
         return 5
     }
 
-    private fun getScanItemTypeByPosition(position: Int): ScanItemType {
-        return ScanItemType.values()[position]
-    }
-
     override fun getChildCount(groupPosition: Int): Int {
-        return mapTypes?.get(getScanItemTypeByPosition(groupPosition))?.size ?: 0
+        return sortList?.get(groupPosition)?.childList?.size ?: 0
     }
 
     override fun onCreateChildViewHolder(viewGroup: ViewGroup, viewType: Int): ViewHolder {
@@ -43,9 +39,10 @@ class MyExpandableAdapter(private val layoutInflater: LayoutInflater) : Expandab
     @OptIn(DelicateCoroutinesApi::class)
     override fun onBindGroupViewHolder(holder: ViewHolder, groupPosition: Int, expand: Boolean, payloads: List<Any>) {
         if (holder is GroupViewHolder) {
-            mapTypes?.let {
-                val scanItemType = getScanItemTypeByPosition(groupPosition)
-                val infoList = it[scanItemType]
+            sortList?.let {
+                val info = it[groupPosition]
+                val scanItemType = info.itemType
+                val infoList = info.childList
                 holder.titleTxt.text = scanItemType.name + " ："
                 infoList?.let {
                     GlobalScope.launch {
@@ -64,16 +61,18 @@ class MyExpandableAdapter(private val layoutInflater: LayoutInflater) : Expandab
     @SuppressLint("SetTextI18n")
     override fun onBindChildViewHolder(holder: ViewHolder, groupPosition: Int, childPosition: Int, payloads: List<Any>) {
         if (holder is NormalViewHolder) {
-            mapTypes?.let { it ->
-                val text = it[getScanItemTypeByPosition(groupPosition)]?.get(childPosition)
-                text?.let {
+            sortList?.let { it ->
+                val info = it[groupPosition]
+                val infoList = info.childList
+                val text = infoList[childPosition]
+                text.let {
                     holder.titleTxt.text = "文件名：" + it.name
                     holder.sizeTxt.text = "文件大小：" + DiskUtils.formatFileSize(it.fileSize, false)
 
                     when (it) {
                         is AdGarbageInfo -> {
                             holder.packageTxt.text = "包名：" + it.packageName
-                            holder.pathTxt.text = "路径：" + it.filePath
+                            holder.pathTxt.text = "路径：" + it.filePaths
                         }
                         is ApkFileInfo -> {
                             holder.packageTxt.text = "包名："
