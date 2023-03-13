@@ -109,6 +109,11 @@ class NormalGarbageScanner : BaseScanner {
             if (TextUtils.equals(sdRootPath, info.filePath)) {
                 continue
             }
+
+            if (!File(info.filePath).exists()) {
+                continue
+            }
+
             if (isStopScanner) {
                 break
             }

@@ -64,7 +64,7 @@ class AdGarbageScanner : BaseScanner {
             }
             val countDownLatch = CountDownLatch(1)
             fileScanner?.apply {
-                setScanPath(CommonUtil.getPathList(pathInfoList))
+                setScanPath(arrayOf(info.filePath))
                 setScanParams(null, null, 2, -1, true)
                 startScan(object : FileScanner.ScanCallback {
                     override fun onStart() {

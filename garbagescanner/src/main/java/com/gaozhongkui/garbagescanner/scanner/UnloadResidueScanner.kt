@@ -105,6 +105,10 @@ class UnloadResidueScanner : BaseScanner {
                 continue
             }
 
+            if (!File(info.filePath).exists()) {
+                continue
+            }
+
             if (isStopScanner) {
                 break
             }
